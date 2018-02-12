@@ -1,0 +1,173 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1504\cocoasubrtf830
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 HelveticaNeue;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red191\green191\blue191;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;\csgray\c79525;}
+\margl1440\margr1440\vieww16940\viewh11320\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \'97 IEMS 308 Association Rules\
+\'97 Renee Probetts\
+\'97 Necessary SQL queries\
+\'97 the following queries can be run directly in pgAdmin \
+\
+\
+\pard\pardeftab720\sl440\partightenfactor0
+
+\f1\fs36 \cf2 \expnd0\expndtw0\kerning0
+-- Run preliminary analysis on the data \
+SELECT state FROM pos.strinfo;\
+SELECT count (distinct store) FROM pos.strinfo;\
+SELECT count(distinct state) FROM pos.strinfo;\
+SELECT state FROM pos.strinfo WHERE state = \'91CO\'92;\
+SELECT state FROM pos.strinfo WHERE state = \'91TX\'92;\
+SELECT state FROM pos.strinfo WHERE state = \'91MO\'92;\
+\
+\pard\pardeftab720\sl440\partightenfactor0
+\cf2 -- Decide to select from Colorado stores \cf2 \
+\cf2 --T\cf2 he following creates the skus limited to colorado stores\'a0\
+CREATE TABLE rsp714_schema.coskstinfo AS SELECT skstinfo.sku, skstinfo.store, skstinfo.retail FROM pos.skstinfo INNER JOIN rsp714_schema.costore ON costore.store = skstinfo.store;\
+\
+SELECT count(distinct store) FROM rsp714_schema.coskstinfo;\
+SELECT count(distinct store) FROM rsp714_schema.costore;\
+SELECT store, count(sku) FROM rsp714_schema.coskstinfo group by store;\
+-- based on the results of this query, determined store 8109 has the most skus, is the biggest store and is the one that will be used for the analysis\'a0\
+\
+-- Create table based on these results which will be used to aggregate the information from the transact table\
+CREATE TABLE rsp714_schema.beststore AS SELECT * FROM rsp714_schema.coskstinfo WHERE store = '8109';\
+\
+\cf2 --\cf2 Determine the columns of pos.trnsact\
+SELECT * FROM pos.trnsact limit 1;\
+SELECT * FROM pos.skstinfo where sku = 3856913;\
+\
+\cf2 --\cf2 Learn the following:\
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrt\brdrnil \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx4320
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 COLUMN\cell 
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 NAME\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx4320
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 c1\cell 
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 sku\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx4320
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 c2\cell 
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 store\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx4320
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 c3\cell 
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 register\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx4320
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 c4\cell 
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 trannum\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx4320
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 c5\cell 
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 seq\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx4320
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 c6\cell 
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 saledate\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx4320
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 c7\cell 
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 stype\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx4320
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 c8\cell 
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 quantity\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx4320
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 c10\cell 
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 orgprice\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx4320
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 c11\cell 
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 amt\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx4320
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 c12\cell 
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 interid\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx4320
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 c13\cell 
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 mic\cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrt\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx4320
+\clvertalc \clshdrawnil \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadl100 \clpadr100 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 c9, c14\cell 
+\pard\intbl\itap1\pardeftab720\sl440\partightenfactor0
+\cf2 junk \cell \lastrow\row
+\pard\pardeftab720\sl440\partightenfactor0
+\cf2 \
+CREATE TABLE rsp714_schema.skutrnsact AS SELECT beststore.*, trnsact.c4 as trannum, trnsact.c6 as saledate, trnsact.c7 as stype, trnsact.c8 as quantity, trnsact.c10 as orgprice from pos.trnsact INNER JOIN rsp714_schema.beststore ON beststore.sku = CAST(trnsact.c1 AS INT) AND beststore.store = CAST(trnsact.c2 as INT);\
+\
+\pard\pardeftab720\sl440\partightenfactor0
+\cf2 --\cf2  Check the counts of the sku and trannum\
+SELECT count(distinct sku) FROM rsp714_schema.skutrnsact;\
+SELECT count(distinct trannum) FROM rsp714_schema.skutrnsact;\
+	\
+-- Remove all the transactions that are returns and not purchases\'a0\
+DELETE FROM rsp714_schema.skutrnsact WHERE stype = 'R';\
+SELECT count(distinct trannum) FROM rsp714_schema.skutrnsact;\
+\
+\cf2 --\cf2  Alter table to have the right data type\'a0\
+ALTER TABLE rsp714_schema.skutrnsact ALTER COLUMN trannum TYPE int USING trannum::integer;\
+ALTER TABLE rsp714_schema.skutrnsact ALTER COLUMN saledate TYPE date USING saledate::date;\
+ALTER TABLE rsp714_schema.skutrnsact ALTER COLUMN quantity TYPE int USING quantity::integer;\
+ALTER TABLE rsp714_schema.skutrnsact ALTER COLUMN orgprice TYPE money USING orgprice::money;\
+}
